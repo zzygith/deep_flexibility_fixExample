@@ -50,7 +50,7 @@ class DeepSVDDTrainer(BaseTrainer):
     def train(self, dataset: BaseADDataset, net: BaseNet):
 
         constraintsFunc=self.conditionFunctionList(self.dataForConstraints)
-        stateModel=self.stateModelFunction(self.dataForConstraints)
+        #stateModel=self.stateModelFunction(self.dataForConstraints)
 
         logger = logging.getLogger()
         # Set device for network
@@ -107,17 +107,22 @@ class DeepSVDDTrainer(BaseTrainer):
                     # uRangeLow=0
                     # uRangeHigh=3
 
-                    nU=50
-                    uRangeLow=0
-                    uRangeHigh=250
+                    # nU=50
+                    # uRangeLow=0
+                    # uRangeHigh=250
 
-                    uRandom=np.random.uniform(uRangeLow,uRangeHigh,nU)
-                    for k in uRandom:
-                        #if self.condition(inputsTheta[i],k):
-                        if constraintsFunc(inputsTheta[i],k,stateModel):
-                            #satisfiedNum=satisfiedNum+1
-                            satisfiedNum=1
-                            break
+                    # uRandom=np.random.uniform(uRangeLow,uRangeHigh,nU)
+                    # for k in uRandom:
+                    #     #if self.condition(inputsTheta[i],k):
+                    #     if constraintsFunc(inputsTheta[i],k,stateModel):
+                    #         #satisfiedNum=satisfiedNum+1
+                    #         satisfiedNum=1
+                    #         break
+                    if constraintsFunc(inputsTheta[i]):
+                        #satisfiedNum=satisfiedNum+1
+                        satisfiedNum=1
+                        break
+
                     distConstrainFlag[i]=satisfiedNum
 
                 distConstrainFlagTensor=torch.tensor(distConstrainFlag).to(self.device)
@@ -293,32 +298,18 @@ class DeepSVDDTrainer(BaseTrainer):
 
 
 
-    def conditionFunctionList(self,dataForConstraintsChoice):
-        if dataForConstraintsChoice=='mine':
-            def constraint(theta,z,stateModel):
+    def conditionFunctionList(self,dataForConstraintsChoice):     
+        if dataForConstraintsChoice=='mine_fixExample_2d':
+            def constraint(theta):
+                x1=theta[0]
+                x2=theta[1]
                 flag=False
-                if z-theta<=0 and -z-theta/3+4/3<=0 and z+theta-4<=0:
+                if x2<=x1+2 and 8*x1+2*x2<=17 and (x2-1)**2<=2-x1 and (x2-1)**2>=x1+0.5:
                     flag=True
                 return flag
-            return constraint
+            return constraint            
+                       
 
-        elif dataForConstraintsChoice=='mine_heater_1d':
-            def constraint(theta,z,stateModel):
-                flag=False
-                #stateInput=torch.tensor(np.array([theta.flatten(),z])).to(self.device)
-                stateInput=torch.tensor(np.append(theta.flatten(),z),dtype=torch.float32).to(self.device)
-                #states=stateModel(stateInput).cpu().detach().numpy().flatten()
-                states=stateModel(stateInput)
-                states=torch.flatten(states)
-                t1=states[0]
-                t2=states[1]
-                t3=states[2]
-                #t4=states[3]
-                if t2-t1>=0 and t2-393>=0 and t3-313>=0 and t3<=323:
-                     flag=True
-                return flag                   
-
-            return constraint
 
     def stateModelFunction(self,dataForConstraintsChoice):
         if dataForConstraintsChoice=='mine':
