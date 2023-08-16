@@ -31,7 +31,7 @@ class DeepSVDDTrainer(BaseTrainer):
 
         #self.eps=1e-6 #to avoid inf
         self.eps=1e-10
-        self.eta=100 #weighting for unsatisfied constraints #1000 #10 #good eta10 sa100
+        self.eta=10 #weighting for unsatisfied constraints #1000 #10 #good eta10 sa100
         #self.satisfiedP = 1000 #relu, with counting penalty
         #self.satisfiedP = 10 #tanh, all parameter 100:10, center(2,2)
         self.satisfiedP = 10
