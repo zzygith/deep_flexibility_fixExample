@@ -121,7 +121,6 @@ class DeepSVDDTrainer(BaseTrainer):
                     if constraintsFunc(inputsTheta[i]):
                         #satisfiedNum=satisfiedNum+1
                         satisfiedNum=1
-                        break
 
                     distConstrainFlag[i]=satisfiedNum
 
